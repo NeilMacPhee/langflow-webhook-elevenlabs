@@ -1,0 +1,10 @@
+.git
+.venv
+.qodo
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.DS_Store
