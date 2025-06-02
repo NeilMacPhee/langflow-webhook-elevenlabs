@@ -122,3 +122,6 @@ async def run_test(request: Request):
     except Exception as e:
         return {"result": f"Error: {str(e)}"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
