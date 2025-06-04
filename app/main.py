@@ -3,6 +3,8 @@ import httpx
 import uvicorn
 import os
 from dotenv import load_dotenv
+import traceback
+import logging
 
 # Load environment variables from .env file
 load_dotenv()
@@ -13,6 +15,14 @@ app = FastAPI()
 LANGFLOW_URL = os.getenv("LANGFLOW_URL")
 LANGFLOW_URL_EMAIL = os.getenv("LANGFLOW_URL_EMAIL")
 LANGFLOW_URL_DOC = os.getenv("LANGFLOW_URL_DOC")
+
+def format_error(e):
+    error_details = traceback.format_exc()
+    logging.error(error_details)
+    return {
+        "error result": f"Error: {str(e)}",
+        "traceback": error_details
+    }
 
 @app.get("/")
 async def root():
@@ -30,7 +40,7 @@ async def run_langflow(request: Request):
                 LANGFLOW_URL,
                 json={"input_value": user_input},
                 headers={"Content-Type": "application/json"},
-                timeout=15  # Adjust as needed
+                timeout=35  # Adjust as needed
             )
 
         response.raise_for_status()
@@ -46,7 +56,7 @@ async def run_langflow(request: Request):
         return {"result": output_text}
 
     except Exception as e:
-        return {"result": f"Error: {str(e)}"}
+        return format_error(e)
 
 @app.post("/runLangFlowEmail")
 async def run_langflow_email(request: Request):
@@ -59,7 +69,7 @@ async def run_langflow_email(request: Request):
                 LANGFLOW_URL_EMAIL,
                 json={"input_value": user_input},
                 headers={"Content-Type": "application/json"},
-                timeout=15  # Adjust as needed
+                timeout=35  # Adjust as needed
             )
 
         response.raise_for_status()
@@ -75,7 +85,7 @@ async def run_langflow_email(request: Request):
         return {"result": output_text}
 
     except Exception as e:
-        return {"result": f"Error: {str(e)}"}
+        return format_error(e)
 
 @app.post("/runLangFlowDoc")
 async def run_langflow_doc(request: Request):
@@ -88,7 +98,7 @@ async def run_langflow_doc(request: Request):
                 LANGFLOW_URL_DOC,
                 json={"input_value": user_input},
                 headers={"Content-Type": "application/json"},
-                timeout=15  # Adjust as needed
+                timeout=35  # Adjust as needed
             )
 
         response.raise_for_status()
@@ -104,7 +114,7 @@ async def run_langflow_doc(request: Request):
         return {"result": output_text}
 
     except Exception as e:
-        return {"result": f"Error: {str(e)}"}
+        return format_error(e)
 
 @app.post("/runTest")
 async def run_test(request: Request):
@@ -120,7 +130,7 @@ async def run_test(request: Request):
         return {"result": user_data}
 
     except Exception as e:
-        return {"result": f"Error: {str(e)}"}
+        return format_error(e)
 
 @app.get("/health")
 async def health_check():
