@@ -5,11 +5,42 @@ import os
 from dotenv import load_dotenv
 import traceback
 import logging
+import uuid
+import asyncio
+from contextlib import asynccontextmanager
+
+# Generate a unique session ID for each request
+def generate_session_id():
+    return str(uuid.uuid4())
+
+# Declare a global variable to store the session ID
+session_id = generate_session_id()
+
+# Define a context manager to update the session ID
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start up logic
+    async def update_session_id():
+        global session_id
+        while True:
+            session_id = generate_session_id()
+            print(f"Updated session ID: {session_id}")
+            await asyncio.sleep(300)  # 5 minutes
+    
+    task = asyncio.create_task(update_session_id())
+    try:
+        yield
+    finally:
+        task.cancel()
+        await task
+
+# Assign the lifespan to the app
+app = FastAPI(lifespan=lifespan)
 
 # Load environment variables from .env file
 load_dotenv()
 
-app = FastAPI()
+
 
 # Get LangFlow API URLs from environment variables
 LANGFLOW_URL = os.getenv("LANGFLOW_URL")
@@ -38,7 +69,7 @@ async def run_langflow(request: Request):
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 LANGFLOW_URL,
-                json={"input_value": user_input},
+                json={"input_value": user_input, "session_id": session_id},
                 headers={"Content-Type": "application/json"},
                 timeout=35  # Adjust as needed
             )
