@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
         while True:
             session_id = generate_session_id()
             print(f"Updated session ID: {session_id}")
-            await asyncio.sleep(300)  # 5 minutes
+            await asyncio.sleep(3600)  # 1 hour
     
     task = asyncio.create_task(update_session_id())
     try:
