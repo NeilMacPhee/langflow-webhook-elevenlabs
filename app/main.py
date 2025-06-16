@@ -40,8 +40,6 @@ app = FastAPI(lifespan=lifespan)
 # Load environment variables from .env file
 load_dotenv()
 
-
-
 # Get LangFlow API URLs from environment variables
 LANGFLOW_URL = os.getenv("LANGFLOW_URL")
 LANGFLOW_URL_EMAIL = os.getenv("LANGFLOW_URL_EMAIL")
